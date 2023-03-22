@@ -1,0 +1,222 @@
+//
+//  PageOrgViewController.swift
+//  ccmusagame
+//
+//  Created by Carl Hsieh on 12/25/22.
+//  Copyright © 2022 Carl Hsieh. All rights reserved.
+//
+
+import UIKit
+
+class PageOrgViewController: UIPageViewController, UIPageViewControllerDelegate, UIPageViewControllerDataSource {
+    
+    
+    var pageControl = UIPageControl()
+    let item = UINavigationItem(title: " ")
+    
+    // MARK: UIPageViewControllerDataSource
+    
+    lazy var orderedViewControllers: [UIViewController] = {
+        return [self.EasyPage(viewController: "EasyPage"),
+                self.HardPage(viewController: "HardPage"),
+                self.VeryHardPage(viewController: "VeryHardPage")]
+    }()
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        navigationItem.largeTitleDisplayMode = .always
+        navigationController?.navigationBar.prefersLargeTitles = true
+        self.dataSource = self
+        self.delegate = self
+      //  GameName.shared.level = 1
+        
+        
+        // This sets up the first view that will show up on our page control
+        if let firstViewController = orderedViewControllers.first {
+            setViewControllers([firstViewController],
+                               direction: .forward,
+                               animated: true,
+                               completion: nil)
+        }
+        
+        configurePageControl()
+        
+        let navigationBar = UINavigationBar()
+        self.view.addSubview(navigationBar)
+        NSLayoutConstraint.activate([
+            navigationBar.leftAnchor.constraint(equalTo: self.view.leftAnchor),
+            navigationBar.rightAnchor.constraint(equalTo: self.view.rightAnchor),
+            navigationBar.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor)
+        ])
+        navigationBar.translatesAutoresizingMaskIntoConstraints = false
+      
+        //Creating the chevron (back-arrow) to look like Apple's..
+        let img = makeBackChevron(thickness: 3.0, size: CGSize(width: 22.0, height: 44.0), colour: nil)! //UIColor.red
+        
+        //Creating the bar button.. Note: Add your own target and action..
+        let barButton = UIBarButtonItem(image: img, style: .done, target: nil, action:  #selector(self.backAction(_:)))
+        
+        //Set the left bar button item to be the one we created
+        //Then set the items to be part of the navigation bar we created..
+         item.leftBarButtonItems = [barButton]
+         navigationBar.setItems([item], animated: true)
+ 
+        
+        
+        // Do any additional setup after loading the view.
+    }
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        pageControl.frame = CGRect(x:10 , y: view.frame.size.height-100, width: view.frame.size.width-20, height: 70)
+        if pageControl.currentPage == 0
+        {
+            item.title = "填空題-容易"
+         //   GameName.shared.level = 1
+        }
+        else
+        {
+            if pageControl.currentPage == 1
+            {
+                item.title = "填空題-較難"
+               // GameName.shared.level = 2
+            }
+            else
+            {
+                if pageControl.currentPage == 2
+                {
+                    item.title = "填空題-更難"
+                  //  GameName.shared.level = 3
+                }
+            }
+        }
+    }
+    func configurePageControl() {
+        // The total number of pages that are available is based on how many available colors we have.
+        pageControl = UIPageControl(frame: CGRect(x: 0,y: UIScreen.main.bounds.maxY - 50,width: UIScreen.main.bounds.width,height: 50))
+        self.pageControl.numberOfPages = orderedViewControllers.count
+       
+        self.pageControl.currentPage = 0
+        self.pageControl.tintColor = UIColor.black
+        self.pageControl.pageIndicatorTintColor = UIColor.gray
+        self.pageControl.currentPageIndicatorTintColor = UIColor.systemRed
+        self.view.addSubview(pageControl)
+    }
+    
+    func EasyPage(viewController: String) -> UIViewController {
+      //  GameName.shared.level = 1
+       // return UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "Games") as! GameOrgViewController
+       
+        let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "Games") as! UINavigationController
+        return(vc)
+    }
+    
+    func HardPage(viewController: String) -> UIViewController {
+      //  GameName.shared.level = 2
+     //   return UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "GameAll") as! GameOrgViewController
+     
+        let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "Games") as! UINavigationController
+        return(vc)
+    }
+    
+    func VeryHardPage(viewController: String) -> UIViewController {
+      //  GameName.shared.level = 3
+   
+    //    return UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "GameAll") as! GameOrgViewController
+        
+        let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "Games") as! UINavigationController
+        return(vc)
+    }
+    
+    
+    
+    
+    // MARK: Delegate methords
+    func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
+        let pageContentViewController = pageViewController.viewControllers![0]
+        self.pageControl.currentPage = orderedViewControllers.firstIndex(of: pageContentViewController)!
+        GameName.shared.level = pageControl.currentPage + 1
+        GameName.shared.Pagelevel = pageControl.currentPage
+        print("Carl currentPage = \( pageControl.currentPage)")
+       
+    }
+    
+    // MARK: Data source functions.
+    func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
+        guard let viewControllerIndex = orderedViewControllers.firstIndex(of: viewController) else {
+            return nil
+        }
+        
+        let previousIndex = viewControllerIndex - 1
+        
+        // User is on the first view controller and swiped left to loop to
+        // the last view controller.
+        guard previousIndex >= 0 else {
+            return orderedViewControllers.last
+            // Uncommment the line below, remove the line above if you don't want the page control to loop.
+            // return nil
+        }
+        
+        guard orderedViewControllers.count > previousIndex else {
+            return nil
+        }
+       
+        return orderedViewControllers[previousIndex]
+    }
+    
+    func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
+        guard let viewControllerIndex = orderedViewControllers.firstIndex(of: viewController) else {
+            return nil
+        }
+        
+        let nextIndex = viewControllerIndex + 1
+        print("Carl nextIndex = \(nextIndex)")
+        GameName.shared.level = nextIndex + 1
+        let orderedViewControllersCount = orderedViewControllers.count
+        
+        // User is on the last view controller and swiped right to loop to
+        // the first view controller.
+        guard orderedViewControllersCount != nextIndex else {
+            return orderedViewControllers.first
+            // Uncommment the line below, remove the line above if you don't want the page control to loop.
+            // return nil
+        }
+        
+        guard orderedViewControllersCount > nextIndex else {
+            return nil
+        }
+        
+        return orderedViewControllers[nextIndex]
+    }
+    @IBAction func backAction(_ sender: UIButton)
+    {
+        let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "GameHome") as! MainViewController
+        self.present(vc, animated: true, completion: nil)
+    }
+    func makeBackChevron(thickness: CGFloat, size: CGSize, colour: UIColor? = nil) -> UIImage?
+    {
+        
+        UIGraphicsBeginImageContextWithOptions(size, false, UIScreen.main.scale)
+        let ctx = UIGraphicsGetCurrentContext()
+        
+        //Create a thin-line chevron with some left-padding..
+        let padding: CGFloat = 0.20
+        let path = UIBezierPath()
+        path.move(to: CGPoint(x: padding + 0.5, y: 0.773))
+        path.addLine(to: CGPoint(x: padding + 0.0, y: 0.5))
+        path.addLine(to: CGPoint(x: padding + 0.5, y: 0.227))
+        path.apply(CGAffineTransform(scaleX: size.width, y: size.height))
+        
+        //Use a stroke instead of a fill like previous algorithm..
+        ctx?.setStrokeColor(colour?.cgColor ?? UIColor.white.cgColor)
+        ctx?.addPath(path.cgPath)
+        ctx?.setLineWidth(thickness) //Set arrow-thickness..
+        ctx?.setLineJoin(.round) //Set line-join to round corners..
+        ctx?.strokePath()
+        
+        let img = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return colour != nil ? img?.withRenderingMode(.alwaysOriginal) : img
+    }
+   
+}
