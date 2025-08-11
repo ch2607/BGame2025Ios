@@ -26,7 +26,8 @@ class AboutViewController: UIViewController
         AboutText.textColor = .black
         AboutText.font = UIFont.boldSystemFont(ofSize: 18)
         AboutText.translatesAutoresizingMaskIntoConstraints = false
-        AboutText.text = "「聖經填字遊戲」（1.0 版)\n\n本遊戲中的經文採用中文和合本聖經，遊戲目的是幫助你熟悉經文，進而存記心中，成為你腳前的燈、路上的光。\n\n\n中國信徒佈道會出版（2019年)\n\n\n感謝：鄭月娥姊妹提供聖經經節\n\n感謝：Flo Snapchat"
+        AboutText.text = "「聖經填字遊戲」（2.3 版)\n\n本遊戲中的經文採用中文和合本聖經，遊戲目的是幫助你熟悉經文，進而存記心中，成為你腳前的燈、路上的光。 \n\n測試你的信仰
+\n踏上聖經之旅, 透過多項選擇題。對是非和填空題來挑戰你的知識\n\n\n中國信徒佈道會出版（2025年)\n\n\n感謝：鄭月娥姊妹提供聖經經節\n\n "
         return AboutText
         
     }()
